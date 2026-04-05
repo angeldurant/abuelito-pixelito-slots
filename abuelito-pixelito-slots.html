@@ -351,6 +351,16 @@ body{
 .s-icon{font-size:28px;animation:float 3s ease-in-out infinite;filter:drop-shadow(0 0 8px var(--neon));}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 .s-text{font-size:5px;color:var(--neon);letter-spacing:2px;text-shadow:0 0 6px var(--neon);animation:blk 1.8s ease-in-out infinite;}
+.s-promo{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  padding:8px;text-align:center;
+  font-family:'Press Start 2P',monospace;font-size:6.5px;line-height:1.7;
+  color:#fff;letter-spacing:.5px;
+  opacity:0;transition:opacity .8s ease;
+  background:rgba(0,0,0,.82);
+  text-shadow:0 0 8px var(--neon);
+}
+.s-promo.visible{opacity:1;}
 .prize-overlay{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:6;background:rgba(0,0,0,.6);}
 .prize-badge{font-size:9px;font-weight:900;padding:5px 10px;border:2px solid;text-shadow:0 0 10px currentColor;box-shadow:0 0 14px currentColor;animation:pp .4s cubic-bezier(.17,.67,.44,1.4);text-align:center;}
 @keyframes pp{0%{transform:scale(0) rotate(-10deg)}100%{transform:scale(1) rotate(0)}}
@@ -681,7 +691,8 @@ body{
       <video id="screen-video" playsinline></video>
       <div class="screen-idle" id="screen-idle">
         <div class="s-icon">👾</div>
-        <div class="s-text">LIVE SLOTS</div>
+        <div class="s-text" id="s-text">LIVE SLOTS</div>
+        <div class="s-promo" id="s-promo"></div>
       </div>
       <div class="prize-overlay" id="prize-overlay">
         <div class="prize-badge" id="prize-badge">JACKPOT</div>
@@ -1358,6 +1369,7 @@ function showVideo(type){
 
     // Mostrar badge, cuando desaparece arrancar el video desde frame 0
     ov.style.display='flex';
+    stopPromos();
     setTimeout(()=>{
       ov.style.display='none';
       document.getElementById('screen-idle').style.display='none';
@@ -1396,7 +1408,8 @@ function stopVideo(){
   v.oncanplay=null;v.onended=null;v.onloadeddata=null;v.onseeked=null;
   document.getElementById('screen-idle').style.display='flex';
   document.getElementById('screen-idle').querySelector('.s-icon').textContent='👾';
-  document.getElementById('screen-idle').querySelector('.s-text').textContent='LIVE SLOTS';
+  document.getElementById('s-text').textContent='LIVE SLOTS';
+  startPromos();
 }
 
 function showRecordBanner(name,pts){
@@ -1486,7 +1499,62 @@ function nearlyWin(){
 }
 
 // ══════════════════════════════════════
-// TIKTOK WEBSOCKET
+// CARTELES PROMOCIONALES
+// ══════════════════════════════════════
+const PROMOS=[
+  "Acá nadie pierde...\nsolo el que no juega 🎰",
+  "Acá nadie pierde...\nsolo el que se ofenda o demande\npor derechos de autor\n(me refiero a vos, gran N) 👀",
+  "Probá si sos bueno\nen el juego o en el amor...\ny decepcionáte 💔🎮",
+  "Lo recaudado va al fondo\nde ayuda a los que no llegamos\na fin de mes 💸",
+  "Jugá, jugá...\nque mi familia tiene la costumbre\nde comer 2 veces al día 🍽️",
+  "Con lo recaudado\npago el boleto\npara ir a trabajar 🚌",
+  "Pedir no es vergonzoso...\nque no te den, eso sí es peor 🙏",
+  "Regalos = Giros 🎁➡️🎰",
+  "Mi mamá siempre me dijo\nque no iba a ser nadie...\ny acá me ves,\ncumpliéndole las expectativas 😂",
+  "En 2006 tenía $000.0\nen el banco...\ny en 2026 tengo $000.000.000\n(son los mismos ceros) 💀",
+  "Dale un giro a la ruleta\ny viví la vida\nde un campeón 🏆",
+];
+
+let promoIndex=-1;
+let promoTimer=null;
+
+function getNextPromo(){
+  // Orden aleatorio sin repetir seguido
+  let next;
+  do { next=Math.floor(Math.random()*PROMOS.length); } while(next===promoIndex);
+  promoIndex=next;
+  return PROMOS[next];
+}
+
+function showPromo(){
+  const el=document.getElementById('s-promo');
+  if(!el)return;
+  // Fade out
+  el.classList.remove('visible');
+  setTimeout(()=>{
+    el.textContent=getNextPromo();
+    el.classList.add('visible');
+  },900);
+}
+
+function startPromos(){
+  const el=document.getElementById('s-promo');
+  if(!el)return;
+  // Primera frase al instante
+  el.textContent=getNextPromo();
+  el.classList.add('visible');
+  // Rotar cada 5 segundos
+  promoTimer=setInterval(showPromo,5000);
+}
+
+function stopPromos(){
+  if(promoTimer){clearInterval(promoTimer);promoTimer=null;}
+  const el=document.getElementById('s-promo');
+  if(el){el.classList.remove('visible');el.textContent='';}
+}
+
+// Arrancar carteles cuando la página carga
+window.addEventListener('load',()=>setTimeout(startPromos,1000));
 // Descomenta cuando tengas el backend
 // ══════════════════════════════════════
 /*
