@@ -19,10 +19,8 @@ body{
   background:var(--dark);
   font-family:'Orbitron',monospace;
   color:var(--text);
-  width:420px;
-  height:100vh;
-  overflow:hidden;
-  transform-origin:top left;
+  min-height:100vh;
+  overflow-x:hidden;
 }
 
 /* ══════════════════════════════════
@@ -1567,19 +1565,6 @@ ws.onmessage=e=>{
   }
 };
 */
-
-// ══════════════════════════════════════
-// AUTO SCALE — ajusta al viewport
-// ══════════════════════════════════════
-function autoScale(){
-  const totalH=document.body.scrollHeight;
-  const scaleX=window.innerWidth/420;
-  const scaleY=window.innerHeight/totalH;
-  const scale=Math.min(scaleX,scaleY);
-  document.body.style.transform=`scale(${scale})`;
-}
-window.addEventListener('load',autoScale);
-window.addEventListener('resize',autoScale);
 
 // ══════════════════════════════════════
 // INIT
