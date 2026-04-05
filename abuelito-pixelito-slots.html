@@ -322,7 +322,7 @@ body{
 .screen-lbl{display:none;}
 
 .video-screen{
-  width:100%;height:180px;background:#000;flex-shrink:0;
+  width:100%;height:220px;background:#000;flex-shrink:0;
   border-left:none;border-right:none;
   border-top:3px solid var(--gold);border-bottom:3px solid var(--gold);
   border-radius:0;
@@ -353,12 +353,13 @@ body{
 .s-text{font-size:5px;color:var(--neon);letter-spacing:2px;text-shadow:0 0 6px var(--neon);animation:blk 1.8s ease-in-out infinite;}
 .s-promo{
   position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  padding:8px;text-align:center;
-  font-family:'Press Start 2P',monospace;font-size:6.5px;line-height:1.7;
+  padding:12px;text-align:center;
+  font-family:'Press Start 2P',monospace;font-size:9px;line-height:2;
   color:#fff;letter-spacing:.5px;
-  opacity:0;transition:opacity .8s ease;
-  background:rgba(0,0,0,.82);
-  text-shadow:0 0 8px var(--neon);
+  opacity:0;transition:opacity 1.2s ease;
+  background:rgba(0,0,0,.88);
+  text-shadow:0 0 10px var(--neon),0 0 20px var(--neon);
+  white-space:pre-line;
 }
 .s-promo.visible{opacity:1;}
 .prize-overlay{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:6;background:rgba(0,0,0,.6);}
@@ -1503,27 +1504,24 @@ function nearlyWin(){
 // ══════════════════════════════════════
 const PROMOS=[
   "Acá nadie pierde...\nsolo el que no juega 🎰",
-  "Acá nadie pierde...\nsolo el que se ofenda o demande\npor derechos de autor\n(me refiero a vos, gran N) 👀",
-  "Probá si sos bueno\nen el juego o en el amor...\ny decepcionáte 💔🎮",
-  "Lo recaudado va al fondo\nde ayuda a los que no llegamos\na fin de mes 💸",
-  "Jugá, jugá...\nque mi familia tiene la costumbre\nde comer 2 veces al día 🍽️",
+  "Acá nadie pierde...\nsolo el que demande\npor derechos de autor\n(te estoy mirando,\ngran N) 👀",
+  "Probá si sos bueno\nen el juego\no en el amor...\ny decepcionáte 💔",
+  "Lo recaudado va al fondo\nde ayuda a los que\nno llegamos a fin de mes 💸",
+  "Jugá, jugá...\nmi familia tiene la costumbre\nde comer 2 veces al día 🍽️",
   "Con lo recaudado\npago el boleto\npara ir a trabajar 🚌",
-  "Pedir no es vergonzoso...\nque no te den, eso sí es peor 🙏",
+  "Pedir no es vergonzoso...\nque no te den,\neso sí es peor 🙏",
   "Regalos = Giros 🎁➡️🎰",
-  "Mi mamá siempre me dijo\nque no iba a ser nadie...\ny acá me ves,\ncumpliéndole las expectativas 😂",
-  "En 2006 tenía $000.0\nen el banco...\ny en 2026 tengo $000.000.000\n(son los mismos ceros) 💀",
-  "Dale un giro a la ruleta\ny viví la vida\nde un campeón 🏆",
+  "Mi mamá dijo\nque no iba a ser nadie...\ny acá me ves\ncumpliéndole las\nexpectativas 😂",
+  "En 2006 tenía $000.0\nen el banco...\nen 2026 tengo $000.000.000\n(son los mismos ceros) 💀",
+  "Dale un giro\na la ruleta\ny viví la vida\nde un campeón 🏆",
 ];
 
 let promoIndex=-1;
 let promoTimer=null;
 
 function getNextPromo(){
-  // Orden aleatorio sin repetir seguido
-  let next;
-  do { next=Math.floor(Math.random()*PROMOS.length); } while(next===promoIndex);
-  promoIndex=next;
-  return PROMOS[next];
+  promoIndex=(promoIndex+1)%PROMOS.length;
+  return PROMOS[promoIndex];
 }
 
 function showPromo(){
@@ -1543,8 +1541,8 @@ function startPromos(){
   // Primera frase al instante
   el.textContent=getNextPromo();
   el.classList.add('visible');
-  // Rotar cada 5 segundos
-  promoTimer=setInterval(showPromo,5000);
+  // Rotar cada 8 segundos
+  promoTimer=setInterval(showPromo,8000);
 }
 
 function stopPromos(){
