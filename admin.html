@@ -170,7 +170,7 @@ h1{
   <div class="section-header">🔊 AUDIO</div>
   <div class="section-body">
     <div class="btn-row" style="margin-bottom:10px;">
-      <button class="btn btn-green btn-full" onclick="sendCmd('unlock_audio')">▶ ACTIVAR SONIDO</button>
+      <button class="btn btn-green btn-full" id="audio-btn" onclick="toggleAudioAdmin()">▶ ACTIVAR SONIDO</button>
     </div>
     <div class="music-controls">
       <span style="font-size:7px;color:rgba(255,255,255,.4);">MÚSICA</span>
@@ -278,6 +278,24 @@ setInterval(()=>{
 // ══════════════════════════════════════
 // AUDIO
 // ══════════════════════════════════════
+let audioActive = false;
+function toggleAudioAdmin(){
+  const btn = document.getElementById('audio-btn');
+  if(!audioActive){
+    sendCmd('unlock_audio');
+    audioActive = true;
+    btn.textContent = '🔊 SONIDO ACTIVADO — click para desactivar';
+    btn.classList.remove('btn-green');
+    btn.classList.add('btn-red');
+  } else {
+    sendCmd('music_toggle');
+    audioActive = false;
+    btn.textContent = '▶ ACTIVAR SONIDO';
+    btn.classList.remove('btn-red');
+    btn.classList.add('btn-green');
+  }
+}
+
 function toggleMusicAdmin(){
   musicPlaying = !musicPlaying;
   sendCmd('music_toggle');
