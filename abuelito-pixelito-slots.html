@@ -272,45 +272,6 @@ body{
 @keyframes blk{0%,100%{opacity:1}50%{opacity:.4}}
 
 /* ══════════════════════════════════
-   UNLOCK AUDIO BUTTON
-══════════════════════════════════ */
-.unlock-btn{
-  display:block;width:calc(100% - 20px);margin:3px auto;
-  font-family:'Orbitron',monospace;font-size:7px;padding:5px;
-  border:2px solid var(--green);background:rgba(0,255,136,.1);
-  color:var(--green);cursor:pointer;letter-spacing:2px;
-  text-align:center;box-shadow:0 0 10px rgba(0,255,136,.2);
-  animation:blk 2s ease-in-out infinite;
-}
-.unlock-btn.unlocked{
-  border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.2);
-  background:transparent;animation:none;box-shadow:none;
-  font-size:7px;
-}
-
-/* ══════════════════════════════════
-   MÚSICA DE FONDO
-══════════════════════════════════ */
-.music-bar{
-  display:flex;align-items:center;gap:6px;
-  padding:3px 12px;
-  background:rgba(0,0,0,.6);
-  border-bottom:1px solid rgba(0,207,255,.1);
-}
-.music-lbl{font-family:'Share Tech Mono',monospace;font-size:7px;color:rgba(0,207,255,.5);letter-spacing:1px;flex-shrink:0;}
-.music-toggle{
-  font-family:'Orbitron',monospace;font-size:8px;padding:2px 7px;
-  border:1px solid rgba(0,207,255,.4);background:rgba(0,207,255,.08);
-  color:var(--neon);cursor:pointer;border-radius:2px;flex-shrink:0;
-}
-.music-toggle:hover{background:rgba(0,207,255,.18);}
-.music-vol{
-  flex:1;height:3px;accent-color:var(--neon);cursor:pointer;
-  background:rgba(0,207,255,.15);border-radius:2px;
-}
-.music-pct{font-family:'Share Tech Mono',monospace;font-size:7px;color:rgba(0,207,255,.4);width:28px;text-align:right;flex-shrink:0;}
-
-/* ══════════════════════════════════
    VIDEO SCREEN
 ══════════════════════════════════ */
 .video-wrap{
@@ -672,20 +633,8 @@ body{
     <div class="brand-tiktok">● @abuelitopixelito</div>
   </div>
 
-  <!-- AUDIO UNLOCK -->
-  <button class="unlock-btn" id="unlock-btn" onclick="unlockAudio()">
-    🔊 TOCA AQUÍ PARA ACTIVAR SONIDO
-  </button>
-
   <!-- MÚSICA DE FONDO -->
   <audio id="bg-music" src="casino_music.mp3" loop preload="auto"></audio>
-  <div class="music-bar">
-    <span class="music-lbl">🎵 MÚSICA</span>
-    <button class="music-toggle" id="music-toggle" onclick="toggleMusic()">▐▐</button>
-    <input class="music-vol" id="music-vol" type="range" min="0" max="100" value="20"
-      oninput="document.getElementById('bg-music').volume=this.value/100">
-    <span class="music-pct" id="music-pct">20%</span>
-  </div>
   <div class="video-wrap">
     <span class="screen-lbl">PREMIO</span>
     <div class="video-screen">
@@ -876,19 +825,10 @@ window.addEventListener('load',()=>{
   },500);
 });
 
-let musicMuted=false;
 function toggleMusic(){
   const bg=document.getElementById('bg-music');
-  const btn=document.getElementById('music-toggle');
-  musicMuted=!musicMuted;
-  bg.muted=musicMuted;
-  btn.textContent=musicMuted?'▶':'▐▐';
+  bg.muted=!bg.muted;
 }
-
-// Actualizar % del slider
-document.getElementById('music-vol').addEventListener('input',function(){
-  document.getElementById('music-pct').textContent=this.value+'%';
-});
 
 // Sound files — rellená con tus rutas cuando tengas los archivos
 const SFX={
