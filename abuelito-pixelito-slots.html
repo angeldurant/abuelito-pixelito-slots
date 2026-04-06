@@ -843,6 +843,7 @@ let audioUnlocked=false;
 const audioCtx={ctx:null};
 
 function unlockAudio(){
+  if(audioUnlocked)return;
   try{
     audioCtx.ctx=new(window.AudioContext||window.webkitAudioContext)();
     const buf=audioCtx.ctx.createBuffer(1,1,22050);
@@ -856,8 +857,21 @@ function unlockAudio(){
     const bg=document.getElementById('bg-music');
     bg.volume=0.20;
     bg.play().catch(()=>{});
+    console.log('[Audio] Desbloqueado correctamente');
   }catch(e){console.log('Audio unlock failed',e);}
 }
+
+// Auto-activar con cualquier interacción
+['click','keydown','touchstart','pointerdown'].forEach(evt=>{
+  document.addEventListener(evt, unlockAudio, {once:false});
+});
+
+// Intentar auto-activar cuando la página carga
+window.addEventListener('load',()=>{
+  setTimeout(()=>{
+    if(!audioUnlocked)unlockAudio();
+  },500);
+});
 
 let musicMuted=false;
 function toggleMusic(){
@@ -1036,6 +1050,23 @@ let spinQ=0,totalSpins=0,totalWins=0,isSpinning=false,jVal=1000000;
 let grid=Array.from({length:5},()=>Array(3).fill(null));
 let userQueue=[];
 let activeUser='';
+let demoMode=false;
+
+// ══════════════════════════════════════
+// DEMO SPIN — gira solo cada 30 segundos
+// ══════════════════════════════════════
+function demoSpin(){
+  if(isSpinning||userQueue.length)return;
+  demoMode=true;
+  activeUser='DEMO';
+  document.getElementById('cp-name').textContent='— DEMO —';
+  document.getElementById('cp-pts').textContent='';
+  runSpin();
+}
+// Primer giro demo a los 5 segundos de cargar
+setTimeout(demoSpin, 5000);
+// Luego cada 30 segundos
+setInterval(demoSpin, 30000);
 
 function manualUser(){return document.getElementById('user-input').value.trim().replace('@','')||'tester';}
 function getInput(){
@@ -1238,32 +1269,53 @@ function evaluate(username){
     if(maxTier>=4&&maxCount===5)prize='jackpot';
     else if(maxTier>=3||maxCount===5)prize='high';
     else prize='mid';
-    totalWins++;
-    document.getElementById('s-wins').textContent=totalWins;
-    playSound('coins');
-    updateScore(username,totalPts);
+    if(!demoMode){
+      totalWins++;
+      document.getElementById('s-wins').textContent=totalWins;
+      playSound('coins');
+      updateScore(username,totalPts);
+    }
   }
 
-  if(wins.length===0){
-    playSound('no_win');
-  } else if(wins.length<=2){
-    playSound('lines_low');
-  } else if(wins.length<=4){
-    playSound('lines_mid');
-  } else {
-    playSound('lines_high');
+  if(!demoMode){
+    if(wins.length===0){
+      playSound('no_win');
+    } else if(wins.length<=2){
+      playSound('lines_low');
+    } else if(wins.length<=4){
+      playSound('lines_mid');
+    } else {
+      playSound('lines_high');
+    }
   }
 
-  drawWins(wins,prize,totalPts);
-  setMsg(prize,wins,totalPts);
-  if(prize!=='none')showVideo(prize);
+  drawWins(wins, demoMode?'none':prize, demoMode?0:totalPts);
+  setMsg(demoMode?'none':prize, wins, demoMode?0:totalPts);
+  if(!demoMode && prize!=='none')showVideo(prize);
   else{
     stopVideo();
-    if(nearly)setTimeout(nearlyWin,300);
+    if(!demoMode && nearly)setTimeout(nearlyWin,300);
   }
 
   jVal+=Math.floor(Math.random()*600)+150;
   document.getElementById('jval').textContent=jVal.toLocaleString();
+
+  // En modo demo liberar inmediatamente sin tocar la cola real
+  if(demoMode){
+    isSpinning=false;
+    demoMode=false;
+    if(userQueue.length){
+      activeUser=userQueue[0].user;
+      document.getElementById('cp-name').textContent='@'+activeUser;
+      setTimeout(runSpin,1300);
+    } else {
+      setTimeout(()=>{
+        document.getElementById('cp-name').textContent='— esperando regalo —';
+        document.getElementById('cp-pts').textContent='0';
+      },2000);
+    }
+    return;
+  }
 
   // Si hay video corriendo, los slots se liberan cuando termina el video
   // Si no hay video (no_win), liberar inmediatamente
