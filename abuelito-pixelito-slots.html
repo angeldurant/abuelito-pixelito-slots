@@ -646,16 +646,8 @@ body{
     <div class="brand-tiktok">● @abuelitopixelito</div>
   </div>
 
-  <!-- MÚSICA DE FONDO -->
-  <audio id="bg-music" src="casino_music.mp3" loop preload="auto"></audio>
-  <!-- ACTIVAR SONIDO — toca una vez al iniciar el live -->
-  <button id="unlock-btn" onclick="unlockAudio()" style="
-    display:block;width:100%;padding:6px;
-    font-family:'Orbitron',monospace;font-size:7px;letter-spacing:2px;
-    border:none;border-bottom:1px solid rgba(0,255,136,.2);
-    background:rgba(0,255,136,.08);color:rgba(0,255,136,.7);
-    cursor:pointer;text-align:center;
-  ">🔊 TOCA UNA VEZ PARA ACTIVAR SONIDO</button>
+  <!-- MÚSICA DE FONDO — PLAYLIST -->
+  <audio id="bg-music" preload="auto"></audio>
   <div class="video-wrap">
     <span class="screen-lbl">PREMIO</span>
     <div class="video-screen">
@@ -769,7 +761,7 @@ body{
 
     <!-- CONTROLES DE MÚSICA -->
     <div class="music-controls-bar">
-      <button class="music-btn" id="music-play-btn" onclick="toggleMusic()">⏸ PAUSA</button>
+      <button class="music-btn" id="music-play-btn" onclick="toggleMusic()">▶ PLAY</button>
       <input class="music-vol-bar" id="music-vol" type="range" min="0" max="100" value="20"
         oninput="setMusicVol(this.value)">
       <span class="music-vol-pct" id="music-pct">20%</span>
@@ -827,36 +819,54 @@ function unlockAudio(){
     const src=audioCtx.ctx.createBufferSource();
     src.buffer=buf;src.connect(audioCtx.ctx.destination);src.start(0);
     audioUnlocked=true;
-    const btn=document.getElementById('unlock-btn');
-    if(btn)btn.style.display='none';
     startMusic();
     console.log('[Audio] Desbloqueado');
   }catch(e){console.log('Audio unlock failed',e);}
 }
 
+// ══════════════════════════════════════
+// PLAYLIST
+// ══════════════════════════════════════
+const PLAYLIST=[
+  'Casino_Night_Pinball_-_Sonic_Generations__OST__128k.mp3',
+  'Roulette_Road_-_Sonic___All-Stars_Racing_Transformed__OST__128k.mp3',
+  'The_King_s_Court_128k.mp3',
+  'SFV_-_Theme_of_Balrog_128k.mp3',
+  'Game_Select_-_Sonic___All-Stars_Racing_Transformed__OST__128k.mp3',
+  'Ocean_View_-_Sonic___All-Stars_Racing_Transformed__OST__128k.mp3',
+  'Vs__Metal_Sonic__Stardust_Speedway_Bad_Future_JP__-_Sonic_Generations__OST__128k.mp3',
+];
+let currentTrack=0;
+
 function startMusic(){
   const bg=document.getElementById('bg-music');
   bg.volume=0.20;
+  bg.src=PLAYLIST[currentTrack];
   bg.play().catch(e=>console.log('[Música] No se pudo arrancar:',e));
+  bg.onended=()=>{
+    currentTrack=(currentTrack+1)%PLAYLIST.length;
+    bg.src=PLAYLIST[currentTrack];
+    bg.play().catch(()=>{});
+  };
 }
 
-// Auto-activar con cualquier interacción directa en el slot
-['click','keydown','touchstart','pointerdown'].forEach(evt=>{
-  document.addEventListener(evt, unlockAudio, {once:true});
-});
-
-// Intentar auto-activar cuando la página carga
-window.addEventListener('load',()=>{
-  setTimeout(()=>{
-    if(!audioUnlocked)unlockAudio();
-  },500);
-});
+// El audio se activa únicamente desde el botón ▶ PLAY
 
 function toggleMusic(){
   const bg=document.getElementById('bg-music');
   const btn=document.getElementById('music-play-btn');
-  bg.muted=!bg.muted;
-  if(btn)btn.textContent=bg.muted?'▶ PLAY':'⏸ PAUSA';
+  if(!audioUnlocked){
+    unlockAudio();
+    if(btn)btn.textContent='⏸ PAUSA';
+    return;
+  }
+  if(bg.paused){
+    bg.play().catch(()=>{});
+    if(btn)btn.textContent='⏸ PAUSA';
+  } else {
+    bg.pause();
+    if(btn)btn.textContent='▶ PLAY';
+  }
 }
 
 function setMusicVol(val){
