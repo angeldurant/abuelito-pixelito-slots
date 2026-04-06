@@ -1052,22 +1052,6 @@ let userQueue=[];
 let activeUser='';
 let demoMode=false;
 
-// ══════════════════════════════════════
-// DEMO SPIN — gira solo cada 30 segundos
-// ══════════════════════════════════════
-function demoSpin(){
-  if(isSpinning||userQueue.length)return;
-  demoMode=true;
-  activeUser='DEMO';
-  document.getElementById('cp-name').textContent='— DEMO —';
-  document.getElementById('cp-pts').textContent='';
-  runSpin();
-}
-// Primer giro demo a los 5 segundos de cargar
-setTimeout(demoSpin, 5000);
-// Luego cada 30 segundos
-setInterval(demoSpin, 30000);
-
 function manualUser(){return document.getElementById('user-input').value.trim().replace('@','')||'tester';}
 function getInput(){
   const v=document.getElementById('user-input').value.trim().replace('@','');
@@ -1135,6 +1119,8 @@ function receiveGift(username,spins){
   spinQ+=spins;
   buildQDots();
   addTicker(username,spins);
+  // Reportar al admin
+  adminChannel.postMessage({cmd:'gift_received', data:{username, spins, queue: spinQ}});
   if(!isSpinning)processQ();
 }
 
@@ -1605,6 +1591,43 @@ function stopPromos(){
 
 // Arrancar carteles cuando la página carga
 window.addEventListener('load',()=>setTimeout(startPromos,1000));
+// ══════════════════════════════════════
+// ADMIN CHANNEL
+// ══════════════════════════════════════
+const adminChannel = new BroadcastChannel('abuelito_admin');
+adminChannel.onmessage = e => {
+  const {cmd, data} = e.data;
+  switch(cmd){
+    case 'ping':
+      adminChannel.postMessage({cmd:'pong'});
+      break;
+    case 'spin':
+      // Giro manual desde admin
+      demoMode=true;
+      activeUser=data?.username||'ADMIN';
+      document.getElementById('cp-name').textContent='@'+activeUser;
+      document.getElementById('cp-pts').textContent='';
+      if(!isSpinning)runSpin();
+      break;
+    case 'gift':
+      // Simular regalo desde admin
+      receiveGift(data.username, data.spins);
+      break;
+    case 'music_toggle':
+      toggleMusic();
+      break;
+    case 'music_vol':
+      const bg=document.getElementById('bg-music');
+      bg.volume=data.vol/100;
+      document.getElementById('music-vol').value=data.vol;
+      document.getElementById('music-pct').textContent=data.vol+'%';
+      break;
+    case 'unlock_audio':
+      unlockAudio();
+      break;
+  }
+};
+
 // ══════════════════════════════════════
 // TIKTOK WEBSOCKET
 // ══════════════════════════════════════

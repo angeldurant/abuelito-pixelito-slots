@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎰 Admin — Abuelito Pixelito</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
+
+:root{
+  --gold:#FFD700;--neon:#00CFFF;--pink:#FF2D78;--green:#00FF88;
+  --purple:#BF00FF;--dark:#020408;--dark2:#0a0d1a;
+  --red:#FF4444;--orange:#FF6B00;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  background:var(--dark);
+  font-family:'Orbitron',monospace;
+  color:#fff;
+  min-height:100vh;
+  padding:12px;
+  background-image:
+    radial-gradient(ellipse at 20% 20%, rgba(0,207,255,.05) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 80%, rgba(191,0,255,.05) 0%, transparent 60%);
+}
+
+h1{
+  font-family:'Press Start 2P',monospace;
+  font-size:12px;color:var(--gold);
+  text-align:center;padding:10px 0 4px;
+  text-shadow:0 0 15px var(--gold);
+  letter-spacing:2px;
+}
+.subtitle{
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px;color:rgba(0,207,255,.5);
+  text-align:center;letter-spacing:3px;margin-bottom:14px;
+}
+
+/* STATUS BAR */
+.status-bar{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:6px 12px;margin-bottom:12px;
+  background:rgba(0,0,0,.6);
+  border:1px solid rgba(0,207,255,.15);border-radius:4px;
+  font-family:'Share Tech Mono',monospace;font-size:9px;
+}
+.status-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--red);box-shadow:0 0 6px var(--red);
+  animation:blink 1s ease-in-out infinite;
+}
+.status-dot.connected{background:var(--green);box-shadow:0 0 6px var(--green);}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.status-txt{color:rgba(255,255,255,.5);}
+.status-txt span{color:var(--neon);}
+
+/* SECTIONS */
+.section{
+  background:rgba(0,0,0,.5);
+  border:1px solid rgba(255,215,0,.15);
+  border-radius:6px;margin-bottom:10px;
+  overflow:hidden;
+}
+.section-header{
+  padding:7px 12px;
+  background:linear-gradient(90deg,rgba(255,215,0,.08),transparent);
+  border-bottom:1px solid rgba(255,215,0,.1);
+  font-size:7px;color:var(--gold);letter-spacing:2px;font-weight:700;
+}
+.section-body{padding:10px 12px;}
+
+/* BUTTONS */
+.btn{
+  font-family:'Orbitron',monospace;font-size:7px;
+  padding:8px 12px;border:2px solid;background:rgba(0,0,0,.6);
+  cursor:pointer;letter-spacing:1px;border-radius:3px;
+  transition:all .15s;font-weight:700;
+}
+.btn:active{transform:scale(.95);}
+.btn-green{border-color:var(--green);color:var(--green);}
+.btn-green:hover{background:rgba(0,255,136,.15);box-shadow:0 0 12px rgba(0,255,136,.3);}
+.btn-neon{border-color:var(--neon);color:var(--neon);}
+.btn-neon:hover{background:rgba(0,207,255,.15);box-shadow:0 0 12px rgba(0,207,255,.3);}
+.btn-pink{border-color:var(--pink);color:var(--pink);}
+.btn-pink:hover{background:rgba(255,45,120,.15);box-shadow:0 0 12px rgba(255,45,120,.3);}
+.btn-gold{border-color:var(--gold);color:var(--gold);}
+.btn-gold:hover{background:rgba(255,215,0,.15);box-shadow:0 0 12px rgba(255,215,0,.3);}
+.btn-purple{border-color:var(--purple);color:var(--purple);}
+.btn-purple:hover{background:rgba(191,0,255,.15);box-shadow:0 0 12px rgba(191,0,255,.3);}
+.btn-red{border-color:var(--red);color:var(--red);}
+.btn-red:hover{background:rgba(255,68,68,.15);box-shadow:0 0 12px rgba(255,68,68,.3);}
+
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;}
+.btn-full{width:100%;}
+
+/* MUSIC CONTROLS */
+.music-controls{display:flex;align-items:center;gap:10px;}
+.vol-slider{
+  flex:1;height:4px;accent-color:var(--neon);cursor:pointer;
+}
+.vol-val{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--neon);width:30px;text-align:right;}
+
+/* GIFT SIMULATOR */
+.gift-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;}
+.gift-btn{
+  font-family:'Share Tech Mono',monospace;font-size:8px;
+  padding:7px 8px;border:1px solid rgba(255,215,0,.3);
+  background:rgba(0,0,0,.5);color:rgba(255,248,220,.7);
+  cursor:pointer;border-radius:3px;text-align:left;
+  transition:all .15s;
+}
+.gift-btn:hover{border-color:var(--gold);color:var(--gold);background:rgba(255,215,0,.08);}
+.gift-btn .spins{float:right;color:var(--neon);}
+
+/* MANUAL SPIN */
+.input-row{display:flex;gap:8px;margin-bottom:8px;}
+.admin-input{
+  flex:1;background:rgba(0,0,0,.7);
+  border:2px solid rgba(0,207,255,.3);color:var(--neon);
+  font-family:'Share Tech Mono',monospace;font-size:11px;
+  padding:7px 10px;outline:none;border-radius:4px;
+}
+.admin-input::placeholder{color:rgba(0,207,255,.25);}
+
+/* ACTIVITY LOG */
+.log{
+  max-height:140px;overflow-y:auto;
+  font-family:'Share Tech Mono',monospace;font-size:8px;
+  line-height:1.8;
+}
+.log::-webkit-scrollbar{width:3px;}
+.log::-webkit-scrollbar-track{background:transparent;}
+.log::-webkit-scrollbar-thumb{background:rgba(0,207,255,.3);}
+.log-entry{padding:2px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.log-entry .time{color:rgba(255,255,255,.25);margin-right:6px;}
+.log-entry.gift .msg{color:var(--green);}
+.log-entry.spin .msg{color:var(--neon);}
+.log-entry.sys .msg{color:rgba(255,215,0,.5);}
+
+/* QUEUE */
+.queue-list{
+  font-family:'Share Tech Mono',monospace;font-size:8px;
+  max-height:80px;overflow-y:auto;
+}
+.queue-item{
+  display:flex;justify-content:space-between;
+  padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04);
+  color:rgba(255,248,220,.6);
+}
+.queue-item .user{color:var(--neon);}
+.queue-item .count{color:var(--gold);}
+.queue-empty{color:rgba(255,255,255,.2);font-size:8px;font-family:'Share Tech Mono',monospace;}
+</style>
+</head>
+<body>
+
+<h1>🎰 ADMIN PANEL</h1>
+<div class="subtitle">ABUELITO PIXELITO — SLOTS</div>
+
+<!-- STATUS -->
+<div class="status-bar">
+  <div class="status-dot" id="status-dot"></div>
+  <span class="status-txt">SLOT: <span id="status-txt">Buscando...</span></span>
+</div>
+
+<!-- AUDIO -->
+<div class="section">
+  <div class="section-header">🔊 AUDIO</div>
+  <div class="section-body">
+    <div class="btn-row" style="margin-bottom:10px;">
+      <button class="btn btn-green btn-full" onclick="sendCmd('unlock_audio')">▶ ACTIVAR SONIDO</button>
+    </div>
+    <div class="music-controls">
+      <span style="font-size:7px;color:rgba(255,255,255,.4);">MÚSICA</span>
+      <button class="btn btn-neon" id="music-toggle-btn" onclick="toggleMusicAdmin()">▐▐ PAUSA</button>
+      <input class="vol-slider" type="range" min="0" max="100" value="20" id="vol-slider"
+        oninput="setVolAdmin(this.value)">
+      <span class="vol-val" id="vol-val">20%</span>
+    </div>
+  </div>
+</div>
+
+<!-- GIRO MANUAL -->
+<div class="section">
+  <div class="section-header">🎮 GIRO MANUAL</div>
+  <div class="section-body">
+    <div class="input-row">
+      <input class="admin-input" id="spin-user" placeholder="usuario..." type="text">
+      <input class="admin-input" id="spin-count" placeholder="giros" type="number" value="1" style="width:70px;flex:none;">
+    </div>
+    <button class="btn btn-gold btn-full" onclick="manualSpin()">🎰 GIRAR AHORA</button>
+  </div>
+</div>
+
+<!-- SIMULAR REGALOS -->
+<div class="section">
+  <div class="section-header">🎁 SIMULAR REGALO</div>
+  <div class="section-body">
+    <div class="input-row">
+      <input class="admin-input" id="gift-user" placeholder="usuario..." type="text" value="tester">
+    </div>
+    <div class="gift-grid" id="gift-grid"></div>
+  </div>
+</div>
+
+<!-- COLA -->
+<div class="section">
+  <div class="section-header">⏳ COLA DE GIROS</div>
+  <div class="section-body">
+    <div class="queue-list" id="queue-list">
+      <span class="queue-empty">— sin jugadores en cola —</span>
+    </div>
+  </div>
+</div>
+
+<!-- LOG -->
+<div class="section">
+  <div class="section-header">📋 ACTIVIDAD</div>
+  <div class="section-body">
+    <div class="log" id="log"></div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════
+// BROADCAST CHANNEL
+// ══════════════════════════════════════
+const ch = new BroadcastChannel('abuelito_admin');
+let musicPlaying = true;
+let slotConnected = false;
+
+// Escuchar eventos del slot
+ch.onmessage = e => {
+  const {cmd, data} = e.data;
+  if(cmd === 'gift_received'){
+    addLog('gift', `🎁 @${data.username} — ${data.spins} giro(s) | Cola: ${data.queue}`);
+    updateQueue(data);
+  }
+  if(cmd === 'pong'){
+    slotConnected = true;
+    updateStatus(true);
+  }
+};
+
+function sendCmd(cmd, data={}){
+  ch.postMessage({cmd, data});
+  addLog('sys', `→ CMD: ${cmd}`);
+}
+
+// ══════════════════════════════════════
+// STATUS CHECK
+// ══════════════════════════════════════
+function updateStatus(connected){
+  const dot = document.getElementById('status-dot');
+  const txt = document.getElementById('status-txt');
+  if(connected){
+    dot.classList.add('connected');
+    txt.textContent = 'Conectado ✓';
+    txt.style.color = 'var(--green)';
+  } else {
+    dot.classList.remove('connected');
+    txt.textContent = 'Abrí el slot en otra pestaña';
+    txt.style.color = 'rgba(255,68,68,.8)';
+  }
+}
+
+// Ping cada 3 segundos
+setInterval(()=>{
+  ch.postMessage({cmd:'ping'});
+  setTimeout(()=>{
+    if(!slotConnected)updateStatus(false);
+    slotConnected=false;
+  },1500);
+},3000);
+
+// ══════════════════════════════════════
+// AUDIO
+// ══════════════════════════════════════
+function toggleMusicAdmin(){
+  musicPlaying = !musicPlaying;
+  sendCmd('music_toggle');
+  document.getElementById('music-toggle-btn').textContent = musicPlaying ? '▐▐ PAUSA' : '▶ PLAY';
+}
+
+function setVolAdmin(val){
+  document.getElementById('vol-val').textContent = val + '%';
+  sendCmd('music_vol', {vol: parseInt(val)});
+}
+
+// ══════════════════════════════════════
+// GIRO MANUAL
+// ══════════════════════════════════════
+function manualSpin(){
+  const user = document.getElementById('spin-user').value.trim() || 'admin';
+  const count = parseInt(document.getElementById('spin-count').value) || 1;
+  sendCmd('gift', {username: user, spins: count});
+  addLog('spin', `🎰 Giro manual: @${user} × ${count}`);
+}
+
+// ══════════════════════════════════════
+// REGALOS
+// ══════════════════════════════════════
+const GIFTS = [
+  {name:'Rosa', spins:1},
+  {name:'TikTok', spins:1},
+  {name:'Flor', spins:1},
+  {name:'Galaxia', spins:3},
+  {name:'Cohete', spins:3},
+  {name:'Universo pequeño', spins:2},
+  {name:'León', spins:5},
+  {name:'Dragón', spins:5},
+  {name:'Castillo', spins:5},
+  {name:'Universo', spins:10},
+  {name:'Coche deportivo', spins:8},
+  {name:'Nave', spins:7},
+];
+
+function buildGiftGrid(){
+  const g = document.getElementById('gift-grid');
+  g.innerHTML = GIFTS.map(gift=>`
+    <button class="gift-btn" onclick="simGift('${gift.name}',${gift.spins})">
+      ${gift.name} <span class="spins">${gift.spins}🎰</span>
+    </button>
+  `).join('');
+}
+
+function simGift(name, spins){
+  const user = document.getElementById('gift-user').value.trim() || 'tester';
+  sendCmd('gift', {username: user, spins});
+  addLog('gift', `🎁 SIM: @${user} → ${name} (${spins} giros)`);
+}
+
+// ══════════════════════════════════════
+// LOG
+// ══════════════════════════════════════
+function addLog(type, msg){
+  const log = document.getElementById('log');
+  const now = new Date().toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const div = document.createElement('div');
+  div.className = `log-entry ${type}`;
+  div.innerHTML = `<span class="time">${now}</span><span class="msg">${msg}</span>`;
+  log.insertBefore(div, log.firstChild);
+  if(log.children.length > 50) log.removeChild(log.lastChild);
+}
+
+// ══════════════════════════════════════
+// QUEUE DISPLAY
+// ══════════════════════════════════════
+const queueData = {};
+function updateQueue(data){
+  if(data.spins > 0) queueData[data.username] = (queueData[data.username]||0) + data.spins;
+  renderQueue();
+}
+function renderQueue(){
+  const list = document.getElementById('queue-list');
+  const entries = Object.entries(queueData);
+  if(!entries.length){
+    list.innerHTML = '<span class="queue-empty">— sin jugadores en cola —</span>';
+    return;
+  }
+  list.innerHTML = entries.map(([user,count])=>`
+    <div class="queue-item">
+      <span class="user">@${user}</span>
+      <span class="count">${count} giro${count>1?'s':''}</span>
+    </div>
+  `).join('');
+}
+
+// ══════════════════════════════════════
+// INIT
+// ══════════════════════════════════════
+buildGiftGrid();
+addLog('sys', '🟢 Admin panel iniciado');
+updateStatus(false);
+</script>
+</body>
+</html>
