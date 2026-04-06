@@ -1553,18 +1553,21 @@ function stopPromos(){
 
 // Arrancar carteles cuando la página carga
 window.addEventListener('load',()=>setTimeout(startPromos,1000));
-// Descomenta cuando tengas el backend
 // ══════════════════════════════════════
-/*
+// TIKTOK WEBSOCKET
+// ══════════════════════════════════════
 const ws=new WebSocket('ws://localhost:8765');
+ws.onopen=()=>console.log('[WS] Conectado al servidor TikTok');
+ws.onclose=()=>console.log('[WS] Desconectado del servidor');
+ws.onerror=(e)=>console.log('[WS] Error:',e);
 ws.onmessage=e=>{
-  const d=JSON.parse(e.data);
-  if(d.type==='gift'){
-    const spins=GIFT_MAP[d.gift_name]||1;
-    receiveGift(d.username,spins);
-  }
+  try{
+    const d=JSON.parse(e.data);
+    if(d.type==='gift'){
+      receiveGift(d.username, d.spins);
+    }
+  }catch(err){console.log('[WS] Error parseando mensaje:',err);}
 };
-*/
 
 // ══════════════════════════════════════
 // INIT
