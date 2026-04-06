@@ -1616,12 +1616,13 @@ adminChannel.onmessage = e => {
     case 'music_toggle':
       toggleMusic();
       break;
-    case 'music_vol':
+    case 'music_vol':{
       const bg=document.getElementById('bg-music');
       bg.volume=data.vol/100;
       document.getElementById('music-vol').value=data.vol;
       document.getElementById('music-pct').textContent=data.vol+'%';
       break;
+    }
     case 'unlock_audio':
       unlockAudio();
       break;
@@ -1631,18 +1632,18 @@ adminChannel.onmessage = e => {
 // ══════════════════════════════════════
 // TIKTOK WEBSOCKET
 // ══════════════════════════════════════
-const ws=new WebSocket('ws://localhost:8765');
-ws.onopen=()=>console.log('[WS] Conectado al servidor TikTok');
-ws.onclose=()=>console.log('[WS] Desconectado del servidor');
-ws.onerror=(e)=>console.log('[WS] Error:',e);
-ws.onmessage=e=>{
-  try{
-    const d=JSON.parse(e.data);
-    if(d.type==='gift'){
-      receiveGift(d.username, d.spins);
-    }
-  }catch(err){console.log('[WS] Error parseando mensaje:',err);}
-};
+try{
+  const ws=new WebSocket('ws://localhost:8765');
+  ws.onopen=()=>console.log('[WS] Conectado al servidor TikTok');
+  ws.onclose=()=>console.log('[WS] Desconectado del servidor');
+  ws.onerror=(e)=>console.log('[WS] Sin servidor TikTok activo');
+  ws.onmessage=e=>{
+    try{
+      const d=JSON.parse(e.data);
+      if(d.type==='gift'){receiveGift(d.username,d.spins);}
+    }catch(err){console.log('[WS] Error parseando mensaje:',err);}
+  };
+}catch(err){console.log('[WS] WebSocket no disponible');}
 
 // ══════════════════════════════════════
 // INIT
