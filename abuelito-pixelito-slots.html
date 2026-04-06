@@ -853,12 +853,15 @@ function unlockAudio(){
     const btn=document.getElementById('unlock-btn');
     btn.textContent='🔊 SONIDO ACTIVADO';btn.classList.add('unlocked');
     btn.disabled=true;
-    // Arrancar música de fondo
-    const bg=document.getElementById('bg-music');
-    bg.volume=0.20;
-    bg.play().catch(()=>{});
+    startMusic();
     console.log('[Audio] Desbloqueado correctamente');
   }catch(e){console.log('Audio unlock failed',e);}
+}
+
+function startMusic(){
+  const bg=document.getElementById('bg-music');
+  bg.volume=0.20;
+  bg.play().catch(e=>console.log('[Música] No se pudo arrancar:',e));
 }
 
 // Auto-activar con cualquier interacción
@@ -1624,7 +1627,8 @@ adminChannel.onmessage = e => {
       break;
     }
     case 'unlock_audio':
-      unlockAudio();
+      if(!audioUnlocked) unlockAudio();
+      else startMusic();
       break;
   }
 };
