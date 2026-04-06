@@ -493,6 +493,19 @@ body{
 .gbtn.manual{border-color:rgba(255,248,220,.5);color:rgba(255,248,220,.8);background:rgba(255,255,255,.06);box-shadow:0 0 10px rgba(255,255,255,.15);}
 
 .manual-row{display:flex;gap:6px;padding:5px 4px 2px;}
+.music-controls-bar{
+  display:flex;align-items:center;gap:8px;
+  padding:6px 4px 2px;border-top:1px solid rgba(0,207,255,.1);margin-top:4px;
+}
+.music-btn{
+  font-family:'Orbitron',monospace;font-size:7px;padding:5px 10px;
+  border:1px solid rgba(0,207,255,.4);background:rgba(0,207,255,.08);
+  color:var(--neon);cursor:pointer;border-radius:3px;flex-shrink:0;
+  letter-spacing:1px;white-space:nowrap;
+}
+.music-btn:hover{background:rgba(0,207,255,.18);}
+.music-vol-bar{flex:1;height:3px;accent-color:var(--neon);cursor:pointer;}
+.music-vol-pct{font-family:'Share Tech Mono',monospace;font-size:8px;color:rgba(0,207,255,.5);width:32px;text-align:right;flex-shrink:0;}
 .user-input{flex:1;background:rgba(0,0,0,.7);border:2px solid rgba(0,207,255,.4);color:var(--neon);font-family:'Share Tech Mono',monospace;font-size:11px;padding:7px 10px;outline:none;border-radius:8px;}
 .user-input::placeholder{color:rgba(0,207,255,.25);}
 .spin-now-btn{font-family:'Orbitron',monospace;font-size:10px;padding:10px 14px;border:2px solid var(--neon);background:rgba(0,207,255,.15);color:var(--neon);cursor:pointer;border-radius:8px;font-weight:900;box-shadow:0 0 14px rgba(0,207,255,.4);white-space:nowrap;}
@@ -635,6 +648,14 @@ body{
 
   <!-- MÚSICA DE FONDO -->
   <audio id="bg-music" src="casino_music.mp3" loop preload="auto"></audio>
+  <!-- ACTIVAR SONIDO — toca una vez al iniciar el live -->
+  <button id="unlock-btn" onclick="unlockAudio()" style="
+    display:block;width:100%;padding:6px;
+    font-family:'Orbitron',monospace;font-size:7px;letter-spacing:2px;
+    border:none;border-bottom:1px solid rgba(0,255,136,.2);
+    background:rgba(0,255,136,.08);color:rgba(0,255,136,.7);
+    cursor:pointer;text-align:center;
+  ">🔊 TOCA UNA VEZ PARA ACTIVAR SONIDO</button>
   <div class="video-wrap">
     <span class="screen-lbl">PREMIO</span>
     <div class="video-screen">
@@ -743,8 +764,15 @@ body{
     </div>
 
     <div class="manual-row">
-      <input class="user-input" id="user-input" type="text" placeholder="@usuario TikTok...">
-      <button class="spin-now-btn" onclick="receiveGift(getInput(),1)">▶ GIRAR</button>
+      <button class="spin-now-btn" style="width:100%;font-size:9px;" onclick="receiveGift('demo',1)">▶ GIRAR DEMO</button>
+    </div>
+
+    <!-- CONTROLES DE MÚSICA -->
+    <div class="music-controls-bar">
+      <button class="music-btn" id="music-play-btn" onclick="toggleMusic()">⏸ PAUSA</button>
+      <input class="music-vol-bar" id="music-vol" type="range" min="0" max="100" value="20"
+        oninput="setMusicVol(this.value)">
+      <span class="music-vol-pct" id="music-pct">20%</span>
     </div>
   </div>
 
@@ -800,10 +828,9 @@ function unlockAudio(){
     src.buffer=buf;src.connect(audioCtx.ctx.destination);src.start(0);
     audioUnlocked=true;
     const btn=document.getElementById('unlock-btn');
-    btn.textContent='🔊 SONIDO ACTIVADO';btn.classList.add('unlocked');
-    btn.disabled=true;
+    if(btn)btn.style.display='none';
     startMusic();
-    console.log('[Audio] Desbloqueado correctamente');
+    console.log('[Audio] Desbloqueado');
   }catch(e){console.log('Audio unlock failed',e);}
 }
 
@@ -813,9 +840,9 @@ function startMusic(){
   bg.play().catch(e=>console.log('[Música] No se pudo arrancar:',e));
 }
 
-// Auto-activar con cualquier interacción
+// Auto-activar con cualquier interacción directa en el slot
 ['click','keydown','touchstart','pointerdown'].forEach(evt=>{
-  document.addEventListener(evt, unlockAudio, {once:false});
+  document.addEventListener(evt, unlockAudio, {once:true});
 });
 
 // Intentar auto-activar cuando la página carga
@@ -827,7 +854,16 @@ window.addEventListener('load',()=>{
 
 function toggleMusic(){
   const bg=document.getElementById('bg-music');
+  const btn=document.getElementById('music-play-btn');
   bg.muted=!bg.muted;
+  if(btn)btn.textContent=bg.muted?'▶ PLAY':'⏸ PAUSA';
+}
+
+function setMusicVol(val){
+  const bg=document.getElementById('bg-music');
+  bg.volume=val/100;
+  const pct=document.getElementById('music-pct');
+  if(pct)pct.textContent=val+'%';
 }
 
 // Sound files — rellená con tus rutas cuando tengas los archivos
@@ -995,12 +1031,8 @@ let userQueue=[];
 let activeUser='';
 let demoMode=false;
 
-function manualUser(){return document.getElementById('user-input').value.trim().replace('@','')||'tester';}
-function getInput(){
-  const v=document.getElementById('user-input').value.trim().replace('@','');
-  document.getElementById('user-input').value='';
-  return v||'tester';
-}
+function manualUser(){return 'demo';}
+function getInput(){return 'demo';}
 
 // ══════════════════════════════════════
 // HELPERS
